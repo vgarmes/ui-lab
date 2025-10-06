@@ -22,7 +22,8 @@ import {
 } from "./ui/select";
 import { Input } from "./ui/input";
 import { DateRange } from "react-day-picker";
-import { setDate, subHours } from "date-fns";
+import { format, isSameDay, isSameSecond, setDate, subHours } from "date-fns";
+import { cn } from "@/lib/utils";
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -54,35 +55,64 @@ function formatTime(date: Date | undefined) {
   });
 }
 
-export function PeriodPicker() {
-  const [open, setOpen] = React.useState(false);
-  const [dateRange, setDateRange] = React.useState<DateRange>(() => {
-    const now = new Date();
-    return {
-      from: subHours(now, 12),
-      to: new Date(),
-    };
-  });
+export interface Preset {
+  period: string;
+  start: Date;
+  end: Date;
+  text: string;
+}
 
-  const [startValue, setStartValue] = React.useState(
-    formatDate(dateRange.from)
+interface Props {
+  initialValue: DateRange;
+  onSubmit: (range: DateRange) => void;
+  presets: Preset[];
+}
+
+function isValidRange(
+  range: DateRange | undefined
+): range is { from: Date; to: Date } {
+  return range?.from !== undefined && range.to !== undefined;
+}
+
+const PeriodPicker: React.FC<Props> = ({ initialValue, onSubmit, presets }) => {
+  const [open, setOpen] = React.useState(false);
+
+  const [value, setValue] = React.useState<DateRange>(initialValue);
+
+  const selectedPreset = presets.find(
+    (preset) =>
+      initialValue.from !== undefined &&
+      isSameSecond(preset.start, initialValue.from) &&
+      initialValue.to !== undefined &&
+      isSameSecond(preset.end, initialValue.to)
   );
 
-  const [startTime, setStartTime] = React.useState(formatTime(dateRange.to));
-
-  const [endValue, setEndValue] = React.useState(formatDate(dateRange.from));
-
-  const [endTime, setEndTime] = React.useState(formatTime(dateRange.to));
+  const isPreset = selectedPreset !== undefined;
 
   return (
-    <div className="inline-flex rounded-md shadow-xs rtl:space-x-reverse">
+    <div
+      className="inline-flex rounded-md shadow-xs rtl:space-x-reverse w-auto"
+      style={{ "--width": "164px" }}
+    >
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
-            className="rounded-none border-r-0 shadow-none rounded-s-md focus-visible:z-10"
+            data-active={!isPreset && isValidRange(value)}
+            className={cn(
+              "transition-none justify-center rounded-none border-r-0 shadow-none rounded-s-md focus-visible:z-10 w-9 has-[>svg]:px-0 py-0",
+              "data-[active=true]:px-3 data-[active=true]:py-2 data-[active=true]:w-(--width) data-[active=true]:justify-start data-[active=true]:*:data-[slot=range-value]:inline-block"
+            )}
             variant="outline"
           >
             <CalendarIcon />
+
+            <span data-slot="range-value" className="truncate hidden">
+              {isValidRange(value) &&
+                `${format(value.from, "MMM d")} - ${format(
+                  value.to,
+                  "MMM dd"
+                )}`}
+            </span>
           </Button>
         </PopoverTrigger>
         <PopoverContent
@@ -90,20 +120,30 @@ export function PeriodPicker() {
           align="start"
         >
           <Calendar
+            autoFocus
             mode="range"
-            selected={dateRange}
-            captionLayout="dropdown"
+            selected={value}
             onSelect={(range) => {
               if (range === undefined) return;
-              if (dateRange.to !== undefined) {
-                setDateRange({ from: range.to, to: undefined });
+              if (value?.to === undefined) {
+                setValue(range);
+                if (isValidRange(range)) {
+                  onSubmit(range);
+                  setOpen(false);
+                }
               } else {
-                setDateRange(range);
+                // new selection
+                const isEndChange =
+                  range.to !== undefined && !isSameDay(value.to, range.to);
+                setValue({
+                  from: isEndChange ? range.to : range.from,
+                  to: undefined,
+                });
               }
             }}
             className="w-full"
           />
-          <div className="py-2.5 px-3 space-y-2">
+          {/* <div className="py-2.5 px-3 space-y-2">
             <div className="flex flex-col">
               <span className="text-muted-foreground text-xs mb-1 ">Start</span>
               <div className="flex items-center gap-2">
@@ -174,27 +214,48 @@ export function PeriodPicker() {
             <Button variant="outline" className="w-full" size="sm">
               Apply ↵
             </Button>
-          </div>
+          </div> */}
         </PopoverContent>
       </Popover>
-      <Select>
-        <SelectTrigger className="w-[180px] rounded-none shadow-none rounded-e-md focus-visible:z-10">
-          <SelectValue placeholder="Select a fruit" />
+      <Select
+        defaultValue={selectedPreset?.period}
+        onValueChange={(newPeriod) => {
+          const newRange = presets.find(
+            (preset) => preset.period === newPeriod
+          );
+          if (newRange === undefined) return;
+          onSubmit({ from: newRange.start, to: newRange.end });
+        }}
+      >
+        <SelectTrigger
+          data-active={isPreset}
+          className={cn(
+            "w-9 p-0 justify-center rounded-none shadow-none rounded-e-md focus-visible:z-10",
+            "data-[active=true]:w-(--width) data-[active=true]:px-3 data-[active=true]:py-2 data-[active=true]:justify-between",
+            "*:data-[slot=select-value]:hidden data-[active=true]:*:data-[slot=select-value]:flex"
+          )}
+        >
+          <SelectValue placeholder="Select a period" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent align="end">
           <SelectGroup>
-            <SelectItem value="apple">Last hour</SelectItem>
-            <SelectItem value="banana">Last 6 hours</SelectItem>
-            <SelectItem value="blueberry">Last 24 hours</SelectItem>
-          </SelectGroup>
-          <SelectSeparator />
-          <SelectGroup>
-            <SelectItem value="grapes">Last 3 days</SelectItem>
-            <SelectItem value="pineapple">Last 7 days</SelectItem>
-            <SelectItem value="grapes">Last 30 days</SelectItem>
+            {presets.map((preset) => (
+              <SelectItem
+                key={preset.period}
+                value={preset.period}
+                onSelect={() => {
+                  console.log("selected");
+                  onSubmit({ from: preset.start, to: preset.end });
+                }}
+              >
+                {preset.text}
+              </SelectItem>
+            ))}
           </SelectGroup>
         </SelectContent>
       </Select>
     </div>
   );
-}
+};
+
+export default PeriodPicker;
