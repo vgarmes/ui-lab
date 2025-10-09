@@ -44,16 +44,48 @@ export default function Home() {
   });
 
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <PeriodPicker
-          initialValue={range}
-          onSubmit={(range) => {
-            if (range.from === undefined || range.to === undefined) return;
-            setRange(range);
-          }}
-          presets={presets}
-        />
+    <div className="pt:10 flex max-w-7xl flex-col items-center justify-center gap-20 p-5 md:mx-auto md:gap-56 md:p-5 md:pt-12">
+      <header className="flex w-full justify-between">
+        <div className="flex items-center gap-0.5">
+          <span className="h-6 w-1.5 rounded-xs bg-red-500 blur-[1px]"></span>
+          <span className="h-6 w-1.5 rounded-xs bg-green-500 blur-[1px]"></span>
+          <span className="h-6 w-1.5 rounded-xs bg-blue-500 blur-[1px]"></span>
+        </div>
+        <div className="text-light-1000 selection:bg-light-accent selection:text-light-200 dark:text-dark-1000 dark:selection:bg-dark-accent dark:selection:text-dark-200 md:w-h2container flex w-10/12 flex-col gap-1 text-right leading-tight">
+          <h1 className="w-full text-right font-serif text-4xl leading-tight md:text-5xl">
+            Crafting fine UI
+          </h1>
+          <div className="text-muted-foreground font-sans">
+            Designed and built by{" "}
+            <a
+              href="https://vgarmes.github.io/"
+              className="decorati decoration-muted-foreground/50 hover:decoration-muted-foreground underline underline-offset-4 transition-colors"
+            >
+              vgarmes
+            </a>
+          </div>
+        </div>
+      </header>
+      <main className="w-full">
+        <div className="relative flex w-full flex-col items-start gap-12 font-sans md:flex-row md:gap-x-40">
+          <div className="w-full space-y-3 md:w-[256px]">
+            <h2 className="text-sm font-medium">Period Picker</h2>
+            <p className="text-muted-foreground text-sm">
+              User can either pick a preset from a dropdown or a custom period
+              using the calendar or date and time inputs.
+            </p>
+          </div>
+          <div className="border-light-border dark:border-dark-border flex h-[250px] w-full items-center justify-center rounded-lg border md:flex-1">
+            <PeriodPicker
+              value={range}
+              onValueChange={(range) => {
+                if (range.from === undefined || range.to === undefined) return;
+                setRange(range);
+              }}
+              presets={presets}
+            />
+          </div>
+        </div>
       </main>
     </div>
   );

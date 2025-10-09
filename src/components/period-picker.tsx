@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CalendarIcon, ChevronDownIcon } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -63,85 +63,96 @@ export interface Preset {
 }
 
 interface Props {
-  initialValue: DateRange;
-  onSubmit: (range: DateRange) => void;
+  value: DateRange;
+  onValueChange: (range: DateRange) => void;
   presets: Preset[];
 }
 
 function isValidRange(
-  range: DateRange | undefined
+  range: DateRange | undefined,
 ): range is { from: Date; to: Date } {
   return range?.from !== undefined && range.to !== undefined;
 }
 
-const PeriodPicker: React.FC<Props> = ({ initialValue, onSubmit, presets }) => {
-  const [open, setOpen] = React.useState(false);
+// This is a separate component to make sure all local state is reset when popover opens
+const RangeCalendar: React.FC<{
+  value: DateRange;
+  onValueChange: (range: DateRange) => void;
+  isPreset: boolean;
+}> = ({ value, onValueChange, isPreset }) => {
+  const [selectedRange, setSelectedRange] = React.useState<DateRange>(() =>
+    isPreset ? { from: undefined, to: undefined } : value,
+  );
+  const isFirstSelection = React.useRef(true);
+  return (
+    <Calendar
+      autoFocus
+      mode="range"
+      selected={selectedRange}
+      onSelect={(range) => {
+        if (range === undefined) return;
+        if (isFirstSelection.current) {
+          isFirstSelection.current = false;
+          setSelectedRange({ from: range?.to, to: undefined });
+        } else {
+          setSelectedRange(range);
+          if (isValidRange(range)) {
+            onValueChange(range);
+          }
+        }
+      }}
+      className="w-full"
+    />
+  );
+};
 
-  const [value, setValue] = React.useState<DateRange>(initialValue);
+const PeriodPicker: React.FC<Props> = ({ value, onValueChange, presets }) => {
+  const [open, setOpen] = React.useState(false);
 
   const selectedPreset = presets.find(
     (preset) =>
-      initialValue.from !== undefined &&
-      isSameSecond(preset.start, initialValue.from) &&
-      initialValue.to !== undefined &&
-      isSameSecond(preset.end, initialValue.to)
+      value.from !== undefined &&
+      isSameSecond(preset.start, value.from) &&
+      value.to !== undefined &&
+      isSameSecond(preset.end, value.to),
   );
 
   const isPreset = selectedPreset !== undefined;
 
   return (
-    <div
-      className="inline-flex rounded-md shadow-xs rtl:space-x-reverse w-auto"
-      style={{ "--width": "164px" }}
-    >
+    <div className="inline-flex w-auto rounded-md shadow-xs [--width:164px] rtl:space-x-reverse">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             data-active={!isPreset && isValidRange(value)}
             className={cn(
-              "transition-none justify-center rounded-none border-r-0 shadow-none rounded-s-md focus-visible:z-10 w-9 has-[>svg]:px-0 py-0",
-              "data-[active=true]:px-3 data-[active=true]:py-2 data-[active=true]:w-(--width) data-[active=true]:justify-start data-[active=true]:*:data-[slot=range-value]:inline-block"
+              "w-9 justify-center rounded-none rounded-s-md border-r-0 py-0 shadow-none transition-none focus-visible:z-10 has-[>svg]:px-0",
+              "data-[active=true]:w-(--width) data-[active=true]:justify-start data-[active=true]:px-3 data-[active=true]:py-2 data-[active=true]:*:data-[slot=range-value]:inline-block",
             )}
             variant="outline"
           >
             <CalendarIcon />
 
-            <span data-slot="range-value" className="truncate hidden">
+            <span data-slot="range-value" className="hidden truncate">
               {isValidRange(value) &&
                 `${format(value.from, "MMM d")} - ${format(
                   value.to,
-                  "MMM dd"
+                  "MMM dd",
                 )}`}
             </span>
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-[280px] overflow-hidden p-0 divide-y"
+          className="w-[280px] divide-y overflow-hidden p-0"
           align="start"
         >
-          <Calendar
-            autoFocus
-            mode="range"
-            selected={value}
-            onSelect={(range) => {
-              if (range === undefined) return;
-              if (value?.to === undefined) {
-                setValue(range);
-                if (isValidRange(range)) {
-                  onSubmit(range);
-                  setOpen(false);
-                }
-              } else {
-                // new selection
-                const isEndChange =
-                  range.to !== undefined && !isSameDay(value.to, range.to);
-                setValue({
-                  from: isEndChange ? range.to : range.from,
-                  to: undefined,
-                });
-              }
+          <RangeCalendar
+            value={value}
+            onValueChange={(range) => {
+              onValueChange(range);
+              setOpen(false);
             }}
-            className="w-full"
+            isPreset={isPreset}
           />
           {/* <div className="py-2.5 px-3 space-y-2">
             <div className="flex flex-col">
@@ -218,21 +229,21 @@ const PeriodPicker: React.FC<Props> = ({ initialValue, onSubmit, presets }) => {
         </PopoverContent>
       </Popover>
       <Select
-        defaultValue={selectedPreset?.period}
+        value={selectedPreset?.period ?? ""}
         onValueChange={(newPeriod) => {
           const newRange = presets.find(
-            (preset) => preset.period === newPeriod
+            (preset) => preset.period === newPeriod,
           );
           if (newRange === undefined) return;
-          onSubmit({ from: newRange.start, to: newRange.end });
+          onValueChange({ from: newRange.start, to: newRange.end });
         }}
       >
         <SelectTrigger
           data-active={isPreset}
           className={cn(
-            "w-9 p-0 justify-center rounded-none shadow-none rounded-e-md focus-visible:z-10",
-            "data-[active=true]:w-(--width) data-[active=true]:px-3 data-[active=true]:py-2 data-[active=true]:justify-between",
-            "*:data-[slot=select-value]:hidden data-[active=true]:*:data-[slot=select-value]:flex"
+            "w-9 justify-center rounded-none rounded-e-md p-0 shadow-none focus-visible:z-10",
+            "data-[active=true]:w-(--width) data-[active=true]:justify-between data-[active=true]:px-3 data-[active=true]:py-2",
+            "*:data-[slot=select-value]:hidden data-[active=true]:*:data-[slot=select-value]:flex",
           )}
         >
           <SelectValue placeholder="Select a period" />
@@ -240,14 +251,7 @@ const PeriodPicker: React.FC<Props> = ({ initialValue, onSubmit, presets }) => {
         <SelectContent align="end">
           <SelectGroup>
             {presets.map((preset) => (
-              <SelectItem
-                key={preset.period}
-                value={preset.period}
-                onSelect={() => {
-                  console.log("selected");
-                  onSubmit({ from: preset.start, to: preset.end });
-                }}
-              >
+              <SelectItem key={preset.period} value={preset.period}>
                 {preset.text}
               </SelectItem>
             ))}
