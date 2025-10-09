@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { CalendarIcon } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -15,14 +14,11 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
-  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Input } from "./ui/input";
 import { DateRange } from "react-day-picker";
-import { format, isSameDay, isSameSecond, setDate, subHours } from "date-fns";
+import { isSameSecond } from "date-fns";
 import { cn } from "@/lib/utils";
 
 function formatDate(date: Date | undefined) {
@@ -30,10 +26,18 @@ function formatDate(date: Date | undefined) {
     return "";
   }
   return date.toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
+    day: "numeric",
+    month: "short",
   });
+}
+
+const rangeFormatter = new Intl.DateTimeFormat("en-US", {
+  day: "numeric",
+  month: "short",
+});
+
+function formatRange(startDate: Date, endDate: Date) {
+  return rangeFormatter.formatRange(startDate, endDate);
 }
 
 function isValidDate(date: Date | undefined) {
@@ -134,11 +138,7 @@ const PeriodPicker: React.FC<Props> = ({ value, onValueChange, presets }) => {
             <CalendarIcon />
 
             <span data-slot="range-value" className="hidden truncate">
-              {isValidRange(value) &&
-                `${format(value.from, "MMM d")} - ${format(
-                  value.to,
-                  "MMM dd",
-                )}`}
+              {isValidRange(value) && formatRange(value.from, value.to)}
             </span>
           </Button>
         </PopoverTrigger>
