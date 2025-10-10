@@ -45,11 +45,11 @@ export default function Home() {
 
   return (
     <div className="pt:10 flex max-w-7xl flex-col items-center justify-center gap-20 p-5 md:mx-auto md:gap-56 md:p-5 md:pt-12">
-      <header className="flex w-full justify-between">
+      <header className="flex w-full items-start justify-between">
         <div className="flex items-center gap-0.5">
-          <span className="h-6 w-1.5 rounded-xs bg-red-500 blur-[1px]"></span>
-          <span className="h-6 w-1.5 rounded-xs bg-green-500 blur-[1px]"></span>
-          <span className="h-6 w-1.5 rounded-xs bg-blue-500 blur-[1px]"></span>
+          <span className="h-6 w-1.5 rounded-xs bg-red-500"></span>
+          <span className="h-6 w-1.5 rounded-xs bg-green-500"></span>
+          <span className="h-6 w-1.5 rounded-xs bg-blue-500"></span>
         </div>
         <div className="text-light-1000 selection:bg-light-accent selection:text-light-200 dark:text-dark-1000 dark:selection:bg-dark-accent dark:selection:text-dark-200 md:w-h2container flex w-10/12 flex-col gap-1 text-right leading-tight">
           <h1 className="w-full text-right font-serif text-4xl leading-tight md:text-5xl">
