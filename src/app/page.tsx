@@ -1,13 +1,8 @@
 "use client";
 
 import PeriodPicker, { Preset } from "@/components/period-picker";
-import {
-  addDays,
-  addHours,
-  roundToNearestHours,
-  subDays,
-  subHours,
-} from "date-fns";
+import Timeline from "@/components/timeline";
+import { roundToNearestHours, subDays, subHours } from "date-fns";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
 
@@ -66,7 +61,7 @@ export default function Home() {
           </div>
         </div>
       </header>
-      <main className="w-full">
+      <main className="w-full space-y-12">
         <div className="relative flex w-full flex-col items-start gap-12 font-sans md:flex-row md:gap-x-40">
           <div className="w-full space-y-3 md:w-[256px]">
             <h2 className="text-sm font-medium">Period Picker</h2>
@@ -85,6 +80,18 @@ export default function Home() {
               presets={presets}
             />
           </div>
+        </div>
+
+        <div className="flex w-full flex-col items-start gap-12 font-sans md:flex-row md:gap-x-40">
+          <div className="w-full shrink-0 space-y-3 md:w-[256px]">
+            <h2 className="text-sm font-medium">Timeline</h2>
+            <p className="text-muted-foreground text-sm">
+              User can either pick a preset from a dropdown or a custom period
+              using the calendar or date and time inputs.
+            </p>
+          </div>
+
+          <Timeline />
         </div>
       </main>
     </div>

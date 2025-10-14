@@ -18,16 +18,16 @@ import {
   SelectValue,
 } from "./ui/select";
 import { DateRange } from "react-day-picker";
-import { isSameSecond } from "date-fns";
+import { isSameSecond, subDays } from "date-fns";
 import { cn } from "@/lib/utils";
+import { Input } from "./ui/input";
 
 function formatDate(date: Date | undefined) {
   if (!date) {
     return "";
   }
   return date.toLocaleDateString("en-US", {
-    day: "numeric",
-    month: "short",
+    dateStyle: "medium",
   });
 }
 
@@ -52,7 +52,7 @@ function formatTime(date: Date | undefined) {
     return "";
   }
 
-  return date.toLocaleTimeString(undefined, {
+  return date.toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
@@ -82,11 +82,8 @@ function isValidRange(
 const RangeCalendar: React.FC<{
   value: DateRange;
   onValueChange: (range: DateRange) => void;
-  isPreset: boolean;
-}> = ({ value, onValueChange, isPreset }) => {
-  const [selectedRange, setSelectedRange] = React.useState<DateRange>(() =>
-    isPreset ? { from: undefined, to: undefined } : value,
-  );
+}> = ({ value, onValueChange }) => {
+  const [selectedRange, setSelectedRange] = React.useState<DateRange>(value);
   const isFirstSelection = React.useRef(true);
   return (
     <Calendar
@@ -107,6 +104,84 @@ const RangeCalendar: React.FC<{
       }}
       className="w-full"
     />
+  );
+};
+
+const InputPicker: React.FC<{
+  defaultValue: DateRange;
+  onApplyChanges: (range: DateRange) => void;
+}> = ({ defaultValue, onApplyChanges }) => {
+  const [startValue, setStartValue] = React.useState<string>(
+    defaultValue.from === undefined ? "" : formatDate(defaultValue.from),
+  );
+  const [startTime, setStartTime] = React.useState<string>(
+    defaultValue.from === undefined ? "" : formatTime(defaultValue.from),
+  );
+  const [endDate, setEndDate] = React.useState<string>(
+    defaultValue.to === undefined ? "" : formatDate(defaultValue.to),
+  );
+  const [endTime, setEndTime] = React.useState<string>(
+    defaultValue.to === undefined ? "" : formatTime(defaultValue.to),
+  );
+
+  return (
+    <div className="space-y-2 px-3 py-2.5">
+      <div className="flex flex-col">
+        <span className="text-muted-foreground mb-1 text-xs">Start</span>
+        <div className="flex items-center gap-2">
+          <Input
+            id="date"
+            value={startValue}
+            placeholder="June 01, 2025"
+            className="bg-background"
+            onChange={(e) => {
+              setStartValue(e.target.value);
+            }}
+          />
+          <Input
+            type="time"
+            id="time-picker"
+            value={startTime}
+            onChange={(e) => {
+              setStartTime(e.target.value);
+            }}
+            className="bg-background w-24 shrink-0 appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-col">
+        <span className="text-muted-foreground mb-1 text-xs">End</span>
+        <div className="flex items-center gap-2">
+          <Input
+            id="date"
+            value={endDate}
+            placeholder="June 01, 2025"
+            className="bg-background"
+            onChange={(e) => {
+              setEndDate(e.target.value);
+            }}
+          />
+          <Input
+            type="time"
+            id="time-picker"
+            value={endTime}
+            onChange={(e) => {
+              setEndTime(e.target.value);
+            }}
+            className="bg-background w-24 shrink-0 appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+          />
+        </div>
+      </div>
+      <Button
+        variant="outline"
+        className="w-full"
+        size="sm"
+        onClick={onApplyChanges}
+      >
+        Apply ↵
+      </Button>
+    </div>
   );
 };
 
@@ -152,80 +227,15 @@ const PeriodPicker: React.FC<Props> = ({ value, onValueChange, presets }) => {
               onValueChange(range);
               setOpen(false);
             }}
-            isPreset={isPreset}
           />
-          {/* <div className="py-2.5 px-3 space-y-2">
-            <div className="flex flex-col">
-              <span className="text-muted-foreground text-xs mb-1 ">Start</span>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="date"
-                  value={startValue}
-                  placeholder="June 01, 2025"
-                  className="bg-background"
-                  onChange={(e) => {
-                    const date = new Date(e.target.value);
-                    setStartValue(e.target.value);
-                    if (isValidDate(date)) {
-                      setDateRange({ ...dateRange, from: date });
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "ArrowDown") {
-                      e.preventDefault();
-                      setOpen(true);
-                    }
-                  }}
-                />
-                <Input
-                  type="time"
-                  id="time-picker"
-                  value={startTime}
-                  onChange={(e) => {
-                    setStartTime(e.target.value);
-                  }}
-                  className="bg-background w-24 shrink-0 appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                />
-              </div>
-            </div>
 
-            <div className="flex flex-col">
-              <span className="text-muted-foreground text-xs mb-1 ">End</span>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="date"
-                  value={endValue}
-                  placeholder="June 01, 2025"
-                  className="bg-background"
-                  onChange={(e) => {
-                    const date = new Date(e.target.value);
-                    setEndValue(e.target.value);
-                    if (isValidDate(date)) {
-                      setDateRange({ ...dateRange, from: date });
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "ArrowDown") {
-                      e.preventDefault();
-                      setOpen(true);
-                    }
-                  }}
-                />
-                <Input
-                  type="time"
-                  id="time-picker"
-                  value={startTime}
-                  onChange={(e) => {
-                    setEndTime(e.target.value);
-                  }}
-                  className="bg-background w-24 shrink-0 appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                />
-              </div>
-            </div>
-            <Button variant="outline" className="w-full" size="sm">
-              Apply ↵
-            </Button>
-          </div> */}
+          <InputPicker
+            defaultValue={value}
+            onApplyChanges={(range) => {
+              onValueChange(range);
+              setOpen(false);
+            }}
+          />
         </PopoverContent>
       </Popover>
       <Select
