@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -16,17 +16,18 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
+} from "../ui/select";
 import { DateRange } from "react-day-picker";
 import { isAfter, isSameSecond } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Input } from "./ui/input";
+import { Input } from "../ui/input";
 
-function formatDate(date: Date | undefined) {
+function formatDate(date: Date | undefined, timeZone = "UTC") {
   if (!date) {
     return "";
   }
   return date.toLocaleDateString("en-US", {
+    timeZone,
     dateStyle: "medium",
   });
 }
@@ -52,12 +53,13 @@ function isValidTime(time: string): boolean {
   return timeRegex.test(time);
 }
 
-function formatTime(date: Date | undefined) {
+function formatTime(date: Date | undefined, timeZone = "UTC") {
   if (!date) {
     return "";
   }
 
   return date.toLocaleTimeString("en-US", {
+    timeZone,
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
@@ -82,6 +84,7 @@ interface FormValues {
   startTime: string;
   endValue: string;
   endTime: string;
+  timeZone: string;
 }
 
 type FormErrors = Record<keyof FormValues, string | null>;
@@ -111,12 +114,14 @@ function parseFormValues({
   startTime,
   endValue,
   endTime,
+  timeZone,
 }: FormValues): ParseDateTimesReturnValue {
   const errors: FormErrors = {
     startValue: null,
     endValue: null,
     startTime: null,
     endTime: null,
+    timeZone: null,
   };
 
   if (!isValidDate(new Date(startValue))) {
@@ -151,8 +156,13 @@ function parseFormValues({
     };
   }
 
-  const startDate = new Date(`${startValue} ${startTime}`);
-  const endDate = new Date(`${endValue} ${endTime}`);
+  const startDate = new Date(
+    `${startValue} ${startTime}${timeZone === "UTC" ? " UTC" : ""}`,
+  );
+
+  const endDate = new Date(
+    `${endValue} ${endTime}${timeZone === "UTC" ? " UTC" : ""}`,
+  );
 
   return {
     data: { startDate, endDate },
@@ -200,6 +210,7 @@ const InputPicker: React.FC<{
   defaultValue: DateRange;
   onApplyChanges: (range: DateRange) => void;
 }> = ({ defaultValue, onApplyChanges }) => {
+  const selectRef = React.useRef<HTMLSelectElement>(null);
   const [showError, setShowError] = React.useState<boolean>(false);
 
   const [formData, setFormData] = React.useState<FormValues>({
@@ -209,6 +220,7 @@ const InputPicker: React.FC<{
       defaultValue.from === undefined ? "" : formatTime(defaultValue.from),
     endValue: defaultValue.to === undefined ? "" : formatDate(defaultValue.to),
     endTime: defaultValue.to === undefined ? "" : formatTime(defaultValue.to),
+    timeZone: "UTC",
   });
 
   const { data, errors, success } = parseFormValues(formData);
@@ -230,6 +242,33 @@ const InputPicker: React.FC<{
   const handlePartialChange = (values: Partial<FormValues>) => {
     setFormData({ ...formData, ...values });
   };
+
+  const handleTimezoneChange = (newTimezone: string) => {
+    setFormData({
+      startValue: formatDate(data?.startDate, newTimezone),
+      startTime: formatTime(data?.startDate, newTimezone),
+      endValue: formatDate(data?.endDate, newTimezone),
+      endTime: formatTime(data?.endDate, newTimezone),
+      timeZone: newTimezone,
+    });
+  };
+
+  const options = React.useMemo(() => {
+    const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    return [
+      { label: "UTC", value: "UTC" },
+      { label: `Local (${localTimezone})`, value: localTimezone },
+    ];
+  }, []);
+
+  const width = React.useMemo(() => {
+    const labelLength =
+      options.find((option) => option.value === formData.timeZone)?.label
+        .length ?? 0;
+    // 6px per character is assumed
+    return labelLength <= 3 ? "54px" : `${8 + 6 * labelLength + 18}px`;
+  }, [formData.timeZone, options]);
 
   return (
     <form className="space-y-2 px-3 py-2.5" onSubmit={onSubmit}>
@@ -302,9 +341,36 @@ const InputPicker: React.FC<{
           />
         </div>
       </div>
-      <Button variant="outline" className="w-full" size="sm" type="submit">
+      <Button variant="outline" className="mb-1 w-full" size="sm" type="submit">
         Apply ↵
       </Button>
+      <div className="flex justify-center pl-4">
+        <div className="group relative flex items-center [--themed-border:transparent]">
+          <select
+            ref={selectRef}
+            className={cn(
+              "text-muted-foreground h-6 cursor-pointer appearance-none truncate rounded pr-[22px] pl-1.5 text-xs transition-all outline-none",
+              "shadow-[0_0_0_1px_var(--themed-border,_var(--ds-gray-alpha-400))] hover:[--themed-border:var(--ds-gray-alpha-500)] focus:shadow-(--ds-focus-border)",
+            )}
+            style={{
+              width,
+            }}
+            value={formData.timeZone}
+            onChange={(e) => {
+              handleTimezoneChange(e.target.value);
+            }}
+          >
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <span className="transition-color text-muted-foreground group-hover:text-foreground pointer-events-none absolute right-[5px] inline-flex">
+            <ChevronDown className="size-4" />
+          </span>
+        </div>
+      </div>
     </form>
   );
 };

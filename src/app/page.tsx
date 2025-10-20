@@ -1,9 +1,9 @@
 "use client";
 
-import PeriodPicker, { Preset } from "@/components/period-picker";
+import PeriodPicker, { Preset } from "@/components/date-range-picker";
 import { roundToNearestHours, subDays, subHours } from "date-fns";
 import { useState } from "react";
-import { DateRange } from "react-day-picker";
+import type { DateRange } from "react-day-picker";
 
 function generatePresets(): Preset[] {
   const endDate = roundToNearestHours(new Date());
