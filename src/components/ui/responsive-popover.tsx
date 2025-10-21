@@ -1,7 +1,14 @@
 import * as React from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Drawer, DrawerTrigger, DrawerContent } from "./drawer";
+import {
+  Drawer,
+  DrawerTrigger,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "./drawer";
 import { Popover, PopoverTrigger, PopoverContent } from "./popover";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 const ResponsivePopoverContext = React.createContext({ isDrawer: false });
 
@@ -53,10 +60,10 @@ function ResponsivePopoverTrigger({
 }
 
 // Content component
-
 interface ResponsivePopoverContentProps {
   children: React.ReactNode;
   className?: string;
+  title: string;
   asChild?: boolean;
   side?: "top" | "right" | "bottom" | "left";
   align?: "center" | "start" | "end";
@@ -65,13 +72,23 @@ interface ResponsivePopoverContentProps {
 function ResponsivePopoverContent({
   children,
   side,
+  title,
   align,
   ...props
 }: ResponsivePopoverContentProps) {
   const { isDrawer } = React.useContext(ResponsivePopoverContext);
 
   if (isDrawer) {
-    return <DrawerContent {...props}>{children}</DrawerContent>;
+    return (
+      <DrawerContent {...props}>
+        <VisuallyHidden>
+          <DrawerHeader>
+            <DrawerTitle>{title}</DrawerTitle>
+          </DrawerHeader>
+        </VisuallyHidden>
+        {children}
+      </DrawerContent>
+    );
   }
 
   return (

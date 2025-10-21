@@ -28,7 +28,7 @@ import {
   ResponsivePopover,
   ResponsivePopoverContent,
   ResponsivePopoverTrigger,
-} from "../ui/responsive-popover";
+} from "@/components/ui/responsive-popover";
 
 interface Props {
   value: DateRange;
@@ -130,7 +130,10 @@ const InputPicker: React.FC<{
   }, [formData.timeZone, options]);
 
   return (
-    <form className="space-y-2 px-3 py-2.5" onSubmit={onSubmit}>
+    <form
+      className="space-y-2 border-b px-3 py-2.5 sm:border-t sm:border-b-0"
+      onSubmit={onSubmit}
+    >
       <div className="flex flex-col">
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground mb-1 text-xs">Start</span>
@@ -271,8 +274,9 @@ const DateRangePicker: React.FC<Props> = ({
           </Button>
         </ResponsivePopoverTrigger>
         <ResponsivePopoverContent
-          className="w-full divide-y overflow-hidden p-0 sm:w-[280px]"
+          className="flex w-full flex-col-reverse overflow-hidden p-3 sm:w-[280px] sm:flex-col sm:p-0"
           align="start"
+          title="Select date range"
         >
           <RangeCalendar
             value={value}
