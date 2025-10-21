@@ -1,13 +1,11 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@import "./vercel.css";
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--ds-gray-100);
+  --color-foreground: var(--ds-gray-1200);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-dm-serif);
@@ -30,7 +28,7 @@
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
+  --color-muted-foreground: var(--ds-gray-1100);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
@@ -48,8 +46,6 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -59,7 +55,6 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
@@ -79,11 +74,40 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --content-width: 640px;
+  --ds-gray-100: #fdfdfc;
+  --ds-gray-200: #f9f9f8;
+  --ds-gray-300: #f1f0ef;
+  --ds-gray-400: #e9e8e6;
+  --ds-gray-500: #e2e1de;
+  --ds-gray-600: #dad9d6;
+  --ds-gray-700: #cfceca;
+  --ds-gray-800: #bcbbb5;
+  --ds-gray-900: #8d8d86;
+  --ds-gray-1000: #82827c;
+  --ds-gray-1100: #63635e;
+  --ds-gray-1200: #21201c;
+  --ds-gray-alpha-100: #00000003;
+  --ds-gray-alpha-200: #00000006;
+  --ds-gray-alpha-300: #0000000f;
+  --ds-gray-alpha-400: #00000017;
+  --ds-gray-alpha-500: #0000001f;
+  --ds-gray-alpha-600: #00000026;
+  --ds-gray-alpha-700: #00000031;
+  --ds-gray-alpha-800: #00000044;
+  --ds-gray-alpha-900: #00000072;
+  --ds-gray-alpha-1000: #0000007c;
+  --ds-gray-alpha-1100: #0000009b;
+  --ds-gray-alpha-1200: #000000df;
+  --ds-focus-border:
+    0 0 0 1px var(--ds-gray-alpha-600), 0px 0px 0px 4px #00000029;
+  --ds-shadow-border: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  --ds-shadow-small: 0px 2px 2px rgba(0, 0, 0, 0.04);
+  --ds-shadow-border-small: var(--ds-shadow-border), var(--ds-shadow-small);
+  --ds-background-preview: white;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
@@ -93,7 +117,6 @@
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
@@ -113,15 +136,44 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --ds-gray-100: #111110;
+  --ds-gray-200: #191918;
+  --ds-gray-300: #222221;
+  --ds-gray-400: #2a2a28;
+  --ds-gray-500: #31312e;
+  --ds-gray-600: #3b3a37;
+  --ds-gray-700: #494844;
+  --ds-gray-800: #62605b;
+  --ds-gray-900: #6f6d66;
+  --ds-gray-1000: #7c7b74;
+  --ds-gray-1100: #b5b3ad;
+  --ds-gray-1200: #eeeeec;
+  --ds-gray-alpha-100: #00000000;
+  --ds-gray-alpha-200: #ffffff09;
+  --ds-gray-alpha-300: #ffffff12;
+  --ds-gray-alpha-400: #ffffff1b;
+  --ds-gray-alpha-500: #ffffff22;
+  --ds-gray-alpha-600: #ffffff2c;
+  --ds-gray-alpha-700: #ffffff3b;
+  --ds-gray-alpha-800: #ffffff55;
+  --ds-gray-alpha-900: #ffffff64;
+  --ds-gray-alpha-1000: #ffffff72;
+  --ds-gray-alpha-1100: #ffffffaf;
+  --ds-gray-alpha-1200: #ffffffed;
+  --ds-focus-border:
+    0 0 0 1px var(--ds-gray-alpha-600), 0px 0px 0px 4px #ffffff3d;
+  --ds-shadow-border: 0 0 0 1px hsla(0, 0%, 100%, 0.08);
+  --ds-shadow-small: 0px 1px 2px rgba(0, 0, 0, 0.08);
+  --ds-shadow-border-small:
+    var(--ds-shadow-border), 0px 1px 2px rgba(0, 0, 0, 0.08);
+  --ds-background-preview: #0b0b09;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
+
   button:not(disabled) {
     @apply cursor-pointer;
   }
