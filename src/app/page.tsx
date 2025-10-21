@@ -62,15 +62,15 @@ export default function Home() {
         </div>
       </header>
       <main className="w-full space-y-12">
-        <div className="relative flex w-full flex-col items-start gap-12 font-sans md:flex-row md:gap-x-40">
-          <div className="w-full space-y-3 md:w-[256px]">
+        <div className="relative flex w-full flex-col items-start gap-12 font-sans">
+          <div className="w-full space-y-3">
             <h2 className="text-sm font-medium">Period Picker</h2>
             <p className="text-muted-foreground text-sm">
               User can either pick a preset from a dropdown or a custom period
               using the calendar or date and time inputs.
             </p>
           </div>
-          <div className="border-light-border dark:border-dark-border flex h-[250px] w-full items-center justify-center rounded-lg border md:flex-1">
+          <div className="border-light-border dark:border-dark-border flex h-[500px] w-full items-center justify-center rounded-lg border">
             <DateRangePicker
               value={range}
               onValueChange={(range) => {

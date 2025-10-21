@@ -63,6 +63,7 @@ function ResponsivePopoverTrigger({
 interface ResponsivePopoverContentProps {
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
   title: string;
   asChild?: boolean;
   side?: "top" | "right" | "bottom" | "left";

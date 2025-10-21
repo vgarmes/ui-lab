@@ -130,10 +130,7 @@ const InputPicker: React.FC<{
   }, [formData.timeZone, options]);
 
   return (
-    <form
-      className="space-y-2 border-b px-3 py-2.5 sm:border-t sm:border-b-0"
-      onSubmit={onSubmit}
-    >
+    <form className="space-y-2 px-3 py-2.5" onSubmit={onSubmit}>
       <div className="flex flex-col">
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground mb-1 text-xs">Start</span>
@@ -274,25 +271,29 @@ const DateRangePicker: React.FC<Props> = ({
           </Button>
         </ResponsivePopoverTrigger>
         <ResponsivePopoverContent
-          className="flex w-full flex-col-reverse overflow-hidden p-3 sm:w-[280px] sm:flex-col sm:p-0"
           align="start"
           title="Select date range"
+          className="group p-0 sm:w-[280px]"
         >
-          <RangeCalendar
-            value={value}
-            onValueChange={(range) => {
-              onValueChange(range);
-              setOpen(false);
-            }}
-          />
-
-          <InputPicker
-            defaultValue={value}
-            onApplyChanges={(range) => {
-              onValueChange(range);
-              setOpen(false);
-            }}
-          />
+          <div className="block h-full overflow-y-auto p-3 sm:p-0">
+            <div className="flex flex-col group-data-[side=bottom]:flex-col-reverse">
+              <InputPicker
+                defaultValue={value}
+                onApplyChanges={(range) => {
+                  onValueChange(range);
+                  setOpen(false);
+                }}
+              />
+              <div className="bg-border h-[1px] w-full" />
+              <RangeCalendar
+                value={value}
+                onValueChange={(range) => {
+                  onValueChange(range);
+                  setOpen(false);
+                }}
+              />
+            </div>
+          </div>
         </ResponsivePopoverContent>
       </ResponsivePopover>
       <Select
