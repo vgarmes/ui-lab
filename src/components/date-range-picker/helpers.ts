@@ -1,7 +1,7 @@
 import type { FormValues } from "./types";
 import type { DateRange } from "react-day-picker";
 
-export function formatDate(date: Date | undefined, timeZone = "UTC") {
+export function formatDate(date: Date | undefined, timeZone?: string) {
   if (!date) {
     return "";
   }
@@ -38,7 +38,7 @@ export function isValidRange(
   return range?.from !== undefined && range.to !== undefined;
 }
 
-export function formatTime(date: Date | undefined, timeZone = "UTC") {
+export function formatTime(date: Date | undefined, timeZone?: string) {
   if (!date) {
     return "";
   }

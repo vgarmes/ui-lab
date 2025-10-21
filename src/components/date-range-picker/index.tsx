@@ -75,8 +75,17 @@ const InputPicker: React.FC<{
   defaultValue: DateRange;
   onApplyChanges: (range: DateRange) => void;
 }> = ({ defaultValue, onApplyChanges }) => {
-  const selectRef = React.useRef<HTMLSelectElement>(null);
-  const [showError, setShowError] = React.useState<boolean>(false);
+  const { options, localTimezone } = React.useMemo(() => {
+    const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    return {
+      options: [
+        { label: "UTC", value: "UTC" },
+        { label: `Local (${localTimezone})`, value: localTimezone },
+      ],
+      localTimezone,
+    };
+  }, []);
 
   const [formData, setFormData] = React.useState<FormValues>({
     startValue:
@@ -85,8 +94,10 @@ const InputPicker: React.FC<{
       defaultValue.from === undefined ? "" : formatTime(defaultValue.from),
     endValue: defaultValue.to === undefined ? "" : formatDate(defaultValue.to),
     endTime: defaultValue.to === undefined ? "" : formatTime(defaultValue.to),
-    timeZone: "UTC",
+    timeZone: localTimezone,
   });
+
+  const [showError, setShowError] = React.useState<boolean>(false);
 
   const { data, errors, success } = parseFormValues(formData);
 
@@ -117,15 +128,6 @@ const InputPicker: React.FC<{
       timeZone: newTimezone,
     });
   };
-
-  const options = React.useMemo(() => {
-    const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-    return [
-      { label: "UTC", value: "UTC" },
-      { label: `Local (${localTimezone})`, value: localTimezone },
-    ];
-  }, []);
 
   const width = React.useMemo(() => {
     const labelLength =
@@ -212,7 +214,6 @@ const InputPicker: React.FC<{
       <div className="flex justify-center pl-4">
         <div className="group relative flex items-center [--themed-border:transparent]">
           <select
-            ref={selectRef}
             className={cn(
               "text-muted-foreground h-6 cursor-pointer appearance-none truncate rounded pr-[22px] pl-1.5 text-xs transition-all outline-none",
               "shadow-[0_0_0_1px_var(--themed-border,_var(--ds-gray-alpha-400))] hover:[--themed-border:var(--ds-gray-alpha-500)] focus:shadow-(--ds-focus-border)",
