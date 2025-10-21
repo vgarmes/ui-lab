@@ -16,165 +16,24 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "@/components/ui/select";
 import { DateRange } from "react-day-picker";
-import { isAfter, isSameSecond } from "date-fns";
+import { isSameSecond } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Input } from "../ui/input";
-
-function formatDate(date: Date | undefined, timeZone = "UTC") {
-  if (!date) {
-    return "";
-  }
-  return date.toLocaleDateString("en-US", {
-    timeZone,
-    dateStyle: "medium",
-  });
-}
-
-const rangeFormatter = new Intl.DateTimeFormat("en-US", {
-  day: "numeric",
-  month: "short",
-});
-
-function formatRange(startDate: Date, endDate: Date) {
-  return rangeFormatter.formatRange(startDate, endDate);
-}
-
-function isValidDate(date: Date | undefined) {
-  if (!date) {
-    return false;
-  }
-  return !isNaN(date.getTime());
-}
-
-function isValidTime(time: string): boolean {
-  const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
-  return timeRegex.test(time);
-}
-
-function formatTime(date: Date | undefined, timeZone = "UTC") {
-  if (!date) {
-    return "";
-  }
-
-  return date.toLocaleTimeString("en-US", {
-    timeZone,
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  });
-}
-
-export interface Preset {
-  period: string;
-  start: Date;
-  end: Date;
-  text: string;
-}
+import { Input } from "@/components/ui/input";
+import type { FormValues, Preset } from "./types";
+import {
+  formatDate,
+  formatRange,
+  formatTime,
+  isValidRange,
+  parseFormValues,
+} from "./helpers";
 
 interface Props {
   value: DateRange;
   onValueChange: (range: DateRange) => void;
   presets: Preset[];
-}
-
-interface FormValues {
-  startValue: string;
-  startTime: string;
-  endValue: string;
-  endTime: string;
-  timeZone: string;
-}
-
-type FormErrors = Record<keyof FormValues, string | null>;
-
-type ParseDateTimesReturnValue =
-  | {
-      data: {
-        startDate: Date;
-        endDate: Date;
-      };
-      errors: undefined;
-      success: true;
-    }
-  | {
-      data: undefined;
-      errors: {
-        startValue: string | null;
-        endValue: string | null;
-        startTime: string | null;
-        endTime: string | null;
-      };
-      success: false;
-    };
-
-function parseFormValues({
-  startValue,
-  startTime,
-  endValue,
-  endTime,
-  timeZone,
-}: FormValues): ParseDateTimesReturnValue {
-  const errors: FormErrors = {
-    startValue: null,
-    endValue: null,
-    startTime: null,
-    endTime: null,
-    timeZone: null,
-  };
-
-  if (!isValidDate(new Date(startValue))) {
-    errors.startValue = "Invalid date format";
-  }
-  if (!isValidDate(new Date(endValue))) {
-    errors.endValue = "Invalid date format";
-  }
-  if (!isValidTime(startTime)) {
-    errors.startTime = "Invalid time format";
-  }
-  if (!isValidTime(endTime)) {
-    errors.endTime = "Invalid time format";
-  }
-
-  if (
-    isAfter(
-      new Date(startValue).setTime(new Date(startTime).getTime()),
-      new Date(endValue).setTime(new Date(endTime).getTime()),
-    )
-  ) {
-    errors.endValue = "Invald date format";
-  }
-
-  const hasErrors = Object.values(errors).some((value) => value !== null);
-
-  if (hasErrors) {
-    return {
-      data: undefined,
-      errors,
-      success: false,
-    };
-  }
-
-  const startDate = new Date(
-    `${startValue} ${startTime}${timeZone === "UTC" ? " UTC" : ""}`,
-  );
-
-  const endDate = new Date(
-    `${endValue} ${endTime}${timeZone === "UTC" ? " UTC" : ""}`,
-  );
-
-  return {
-    data: { startDate, endDate },
-    errors: undefined,
-    success: true,
-  };
-}
-
-function isValidRange(
-  range: DateRange | undefined,
-): range is { from: Date; to: Date } {
-  return range?.from !== undefined && range.to !== undefined;
 }
 
 // This is a separate component to make sure all local state is reset when popover opens
@@ -375,7 +234,11 @@ const InputPicker: React.FC<{
   );
 };
 
-const PeriodPicker: React.FC<Props> = ({ value, onValueChange, presets }) => {
+const DateRangePicker: React.FC<Props> = ({
+  value,
+  onValueChange,
+  presets,
+}) => {
   const [open, setOpen] = React.useState(false);
 
   const selectedPreset = presets.find(
@@ -462,4 +325,4 @@ const PeriodPicker: React.FC<Props> = ({ value, onValueChange, presets }) => {
   );
 };
 
-export default PeriodPicker;
+export default DateRangePicker;

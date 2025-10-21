@@ -1,6 +1,7 @@
 "use client";
 
-import PeriodPicker, { Preset } from "@/components/date-range-picker";
+import DateRangePicker from "@/components/date-range-picker";
+import { Preset } from "@/components/date-range-picker/types";
 import { roundToNearestHours, subDays, subHours } from "date-fns";
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
@@ -70,7 +71,7 @@ export default function Home() {
             </p>
           </div>
           <div className="border-light-border dark:border-dark-border flex h-[250px] w-full items-center justify-center rounded-lg border md:flex-1">
-            <PeriodPicker
+            <DateRangePicker
               value={range}
               onValueChange={(range) => {
                 if (range.from === undefined || range.to === undefined) return;
