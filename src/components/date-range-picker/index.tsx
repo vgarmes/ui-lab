@@ -52,7 +52,13 @@ const RangeCalendar: React.FC<{
         if (range === undefined) return;
         if (isFirstSelection.current) {
           isFirstSelection.current = false;
-          setSelectedRange({ from: range?.to, to: undefined });
+          setSelectedRange({
+            from:
+              selectedRange.from?.getTime() === range?.from?.getTime()
+                ? range.to
+                : range.from,
+            to: undefined,
+          });
         } else {
           setSelectedRange(range);
           if (isValidRange(range)) {
