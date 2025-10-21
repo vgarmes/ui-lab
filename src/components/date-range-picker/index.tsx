@@ -67,6 +67,7 @@ const RangeCalendar: React.FC<{
         }
       }}
       className="w-full"
+      defaultMonth={selectedRange?.from}
     />
   );
 };
