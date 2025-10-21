@@ -1,6 +1,7 @@
 import * as React from "react";
 
-export function useIsMobile(mobileBreakpoint = 768) {
+// Uses same breakpoint as Tailwind's 'sm' (640px) by default
+export function useIsMobile(mobileBreakpoint = 640) {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(
     undefined,
   );

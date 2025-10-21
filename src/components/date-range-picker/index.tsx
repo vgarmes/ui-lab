@@ -5,11 +5,6 @@ import { CalendarIcon, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectGroup,
@@ -29,6 +24,11 @@ import {
   isValidRange,
   parseFormValues,
 } from "./helpers";
+import {
+  ResponsivePopover,
+  ResponsivePopoverContent,
+  ResponsivePopoverTrigger,
+} from "../ui/responsive-popover";
 
 interface Props {
   value: DateRange;
@@ -253,8 +253,8 @@ const DateRangePicker: React.FC<Props> = ({
 
   return (
     <div className="inline-flex w-auto rounded-md shadow-xs [--width:164px] rtl:space-x-reverse">
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
+      <ResponsivePopover open={open} onOpenChange={setOpen}>
+        <ResponsivePopoverTrigger asChild>
           <Button
             data-active={!isPreset && isValidRange(value)}
             className={cn(
@@ -269,9 +269,9 @@ const DateRangePicker: React.FC<Props> = ({
               {isValidRange(value) && formatRange(value.from, value.to)}
             </span>
           </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          className="w-[280px] divide-y overflow-hidden p-0"
+        </ResponsivePopoverTrigger>
+        <ResponsivePopoverContent
+          className="w-full divide-y overflow-hidden p-0 sm:w-[280px]"
           align="start"
         >
           <RangeCalendar
@@ -289,8 +289,8 @@ const DateRangePicker: React.FC<Props> = ({
               setOpen(false);
             }}
           />
-        </PopoverContent>
-      </Popover>
+        </ResponsivePopoverContent>
+      </ResponsivePopover>
       <Select
         value={selectedPreset?.period ?? ""}
         onValueChange={(newPeriod) => {
