@@ -1,44 +1,9 @@
 "use client";
 
-import DateRangePicker from "@/components/date-range-picker";
-import { Preset } from "@/components/date-range-picker/types";
+import DateRangePickerPreview from "@/components/date-range-picker/preview";
 import Preview from "@/components/preview";
-import { roundToNearestHours, subDays, subHours } from "date-fns";
-import { useState } from "react";
-import type { DateRange } from "react-day-picker";
-
-function generatePresets(): Preset[] {
-  const endDate = roundToNearestHours(new Date());
-
-  return [
-    {
-      text: "Last 24 Hours",
-      period: "24h",
-      start: subHours(endDate, 24),
-      end: endDate,
-    },
-    {
-      text: "Last 7 days",
-      period: "7d",
-      start: subDays(endDate, 7),
-      end: endDate,
-    },
-    {
-      text: "Last 30 days",
-      period: "30d",
-      start: subDays(endDate, 30),
-      end: endDate,
-    },
-  ];
-}
 
 export default function Home() {
-  const presets = generatePresets();
-  const [range, setRange] = useState<DateRange>({
-    from: presets[0].start,
-    to: presets[0].end,
-  });
-
   return (
     <div className="flex max-w-7xl flex-col items-center justify-center gap-20">
       <header className="flex h-16 w-full items-center gap-4">
@@ -76,14 +41,7 @@ export default function Home() {
             </p>
           </div>
           <Preview>
-            <DateRangePicker
-              value={range}
-              onValueChange={(range) => {
-                if (range.from === undefined || range.to === undefined) return;
-                setRange(range);
-              }}
-              presets={presets}
-            />
+            <DateRangePickerPreview />
           </Preview>
         </div>
       </main>
