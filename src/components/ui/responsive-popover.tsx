@@ -20,8 +20,6 @@ interface ResponsivePopoverRootProps {
 // Root component - decides between Popover and Drawer
 function ResponsivePopoverRoot({
   children,
-  open,
-  onOpenChange,
   ...props
 }: ResponsivePopoverRootProps) {
   const isMobile = useIsMobile();
@@ -30,9 +28,7 @@ function ResponsivePopoverRoot({
 
   return (
     <ResponsivePopoverContext.Provider value={{ isDrawer: isMobile }}>
-      <Wrapper open={open} onOpenChange={onOpenChange} {...props}>
-        {children}
-      </Wrapper>
+      <Wrapper {...props}>{children}</Wrapper>
     </ResponsivePopoverContext.Provider>
   );
 }
